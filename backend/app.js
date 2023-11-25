@@ -7,4 +7,11 @@ app.use(express.json());
 
 app.use('/api/v1/users/', userRouter);
 
+// This will be consider as a global error handling middlewarw
+// call when we call next(error)
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Inrernal server error');
+});
+
 module.exports = app;

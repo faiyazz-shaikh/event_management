@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -46,6 +47,34 @@ const userSchema = new mongoose.Schema({
     },
   },
 });
-const user = mongoose.model('User', userSchema);
 
-module.exports = user;
+// hash the password when provided
+userSchema.pre('save', async function (next) {
+  // check password is modidied
+  if (!this.isModified('password')) return next();
+
+  // hash the password
+  this.password = await bcrypt.hash(this.password, 12);
+
+  //delete the password confirm
+  this.passwordConfirm = undefined;
+
+  next();
+});
+
+// when the password has been changed
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  this.passwordChangedAt = Date.now() - 1000;
+
+  next();
+});
+
+userSchema.methods.checkPasswords = async function (password, hashedPassword) {
+  return await bcrypt.compare(password, hashedPassword);
+};
+
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;
