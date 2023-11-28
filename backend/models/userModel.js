@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    minLength: 8,
+    minlength: 8,
     required: [true, 'Please provide a password'],
     // This will be ignored from any get operation to the user (Select query)
     select: false,
