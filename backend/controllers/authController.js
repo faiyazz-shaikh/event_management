@@ -2,6 +2,8 @@ const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 const User = require('../models/userModel');
 const { catchAsync } = require('../utills/catchAsync');
+const Email = require('../utills/email');
+const crypto = require('crypto');
 
 const getToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -94,3 +96,73 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = user;
   next();
 });
+
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+  // 1. Get the user based on mail
+  const email = req.body.email;
+  const user = await User.findOne({ email });
+
+  console.log(user);
+
+  if (!user) {
+    return res.status(404).json({
+      message: 'User does not exist with this email address',
+    });
+  }
+
+  // 2. Generate random otp and save time in database 10 mins
+  const OTP = user.createPasswordResetOTP();
+  await user.save({ validateBeforeSave: false });
+
+  try {
+    // 3. send otp to email address
+    await new Email(user).send(
+      `The otp(${OTP}) will expire in 10 min`,
+      'Reset Password OTP'
+    );
+
+    console.log(user.passwordResetToken);
+    console.log(user.passwordResetExpires);
+
+    res.status(200).json({ message: 'OTP has been sent to your email' });
+  } catch (error) {
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+    console.log(`error: ${error}`);
+    res
+      .status(500)
+      .json({ message: 'Problem occur while sending an otp', error });
+  }
+});
+
+exports.resetPassword = async (req, res, next) => {
+  // 1. Validate otp
+  const hashedOTP = crypto
+    .createHash('sha256')
+    .update(req.body.otp.toString())
+    .digest('hex');
+
+  console.log(hashedOTP);
+
+  // 2. find user with otp hashed
+  const user = await User.findOne({
+    passwordResetToken: hashedOTP,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  console.log(user);
+
+  if (!user) {
+    return res.status(400).json({ message: 'OTP is invalid or expired' });
+  }
+
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  user.passwordResetExpires = undefined;
+  user.passwordResetToken = undefined;
+
+  await user.save();
+
+  res.status(200).json({ message: 'Password updated successfully' });
+};
