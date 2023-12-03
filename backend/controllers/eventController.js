@@ -32,6 +32,7 @@ exports.getAllEvents = async (req, res, next) => {
       allEvents,
     },
   });
+};
 
 exports.updateEvent = catchAsync(async (req, res, next) => {
   const updatedEvent = req.body;
