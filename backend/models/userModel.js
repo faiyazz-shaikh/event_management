@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -36,15 +37,16 @@ const userSchema = new mongoose.Schema({
       },
       message: 'Password are not the same',
     },
-    /// If some one changed password and someone is still logged in
-    passwordChangedAt: Date,
-    passwordResetToken: String,
-    passwordResetExpires: Date,
-    active: {
-      type: Boolean,
-      default: true,
-      select: false,
-    },
+  },
+  /// If some one changed password and someone is still logged in
+  passwordChangedAt: Date,
+  // this will contain otp hash
+  passwordResetToken: String,
+  passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
   },
 });
 
@@ -86,6 +88,18 @@ userSchema.methods.isPasswordChanged = function (JWTtimestamp) {
   }
 
   return false;
+};
+
+userSchema.methods.createPasswordResetOTP = function () {
+  const OTP = Math.floor(Math.random() * 90000) + 10000;
+
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(OTP.toString())
+    .digest('hex');
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; //milisecond
+  return OTP;
 };
 
 const User = mongoose.model('User', userSchema);
