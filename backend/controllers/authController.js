@@ -62,11 +62,13 @@ exports.protect = catchAsync(async (req, res, next) => {
   let token;
 
   if (
-    req.header.authorization &&
-    req.header.authorization.startsWith('Bearer')
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
   ) {
-    token = req.header.authorization.split(' ')[1];
+    token = req.headers.authorization.split(' ')[1];
   }
+
+  console.log(req.headers);
 
   if (!token) {
     return res
@@ -136,7 +138,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 
-exports.resetPassword = async (req, res, next) => {
+exports.resetPassword = catchAsync(async (req, res, next) => {
   // 1. Validate otp
   const hashedOTP = crypto
     .createHash('sha256')
@@ -165,4 +167,26 @@ exports.resetPassword = async (req, res, next) => {
   await user.save();
 
   res.status(200).json({ message: 'Password updated successfully' });
-};
+});
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  // req.user.id -> from protect middleware
+
+  // 1. Get user from collection.
+  const user = await User.findById(req.user.id).select('+password');
+
+  // Check current password is correct.
+  if (!(await user.checkPasswords(req.body.currentPassword, user.password))) {
+    return res.status(401).json({
+      message: 'Entered password is incorrect',
+    });
+  }
+
+  // Update the password
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  await user.save();
+
+  // create and send new token as password is change old token not be valid
+  createAndSendToken(user, req, res, 200);
+});
