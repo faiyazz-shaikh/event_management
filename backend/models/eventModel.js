@@ -50,19 +50,38 @@ const eventSchema = new mongoose.Schema({
     type: Number,
     default: 5,
   },
-  //   createdBy: {
-  //     type: Schema.Types.ObjectId,
-  //     ref: 'User',
-  //   },
+  latitude: {
+    type: Number,
+    required: [true, 'Please provide a latitude for the event location'],
+  },
+  longitude: {
+    type: Number,
+    required: [true, 'Please provide a longitude for the event location'],
+  },
+  createdBy: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'User',
+    required: [true, 'Event must created by a user'],
+  },
   // update when it's fresh document
   createdAt: {
     type: Date,
     default: Date.now(),
   },
+  // update whenever it's updated.
   updatedAt: {
     type: Date,
     default: Date.now(),
   },
+});
+
+eventSchema.pre('save', function (next) {
+  if (this.isNew) {
+    this.createdAt = Date.now();
+  }
+
+  this.updatedAt = Date.now();
+  next();
 });
 
 const Event = mongoose.model('Event', eventSchema);

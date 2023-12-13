@@ -4,12 +4,12 @@ const ticketSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
-    require: ['Ticket must belongs to an user'],
+    required: [true, 'Ticket must belongs to an user'],
   },
   event: {
     type: mongoose.Schema.ObjectId,
     ref: 'Event',
-    require: [true, 'Ticket must belongs to an event'],
+    required: [true, 'Ticket must belongs to an event'],
   },
   type: {
     type: String,
@@ -21,10 +21,11 @@ const ticketSchema = new mongoose.Schema({
   },
   purchaseDate: {
     type: Date,
-    require: [true, 'Purchase date is required for ticket'],
+    required: [true, 'Purchase date is required for ticket'],
+    default: Date.now(),
   },
 });
 
-const Ticket = new mongoose.model('Ticket', ticketSchema);
+const Ticket = mongoose.model('Ticket', ticketSchema);
 
 module.exports = Ticket;
