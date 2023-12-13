@@ -2,8 +2,15 @@ const Event = require('../models/eventModel');
 const { catchAsync } = require('../utills/catchAsync');
 
 exports.createEvent = catchAsync(async (req, res, next) => {
-  const event = await Event.create(req.body);
+  // should not expect from the body of the request.
+  req.body.createdAt = undefined;
+  req.body.updateEvent = undefined;
+  req.body.capacity = undefined;
 
+  // Assign user to the event
+  req.body.createdBy = req.user.id;
+
+  const event = await Event.create(req.body);
   res.status(201).json({
     status: 'success',
     data: {
@@ -34,42 +41,42 @@ exports.getAllEvents = async (req, res, next) => {
   });
 };
 
-exports.updateEvent = catchAsync(async (req, res, next) => {
-  const updatedEvent = req.body;
+// exports.updateEvent = catchAsync(async (req, res, next) => {
+//   const updatedEvent = req.body;
 
-  // 1. find the event
-  const event = await Event.findById(req.params.id);
+//   // 1. find the event
+//   const event = await Event.findById(req.params.id);
 
-  // event not found
-  if (!event) {
-    return res.status(400).json({
-      message: 'Event Not found',
-    });
-  }
+//   // event not found
+//   if (!event) {
+//     return res.status(400).json({
+//       message: 'Event Not found',
+//     });
+//   }
 
-  // 2. check the date and time can't update on going or past event
-  const currentTime = new Date();
-  const eventTime = new Date(
-    event.date.toISOString().split('T')[0] + 'T' + event.time
-  );
+//   // 2. check the date and time can't update on going or past event
+//   const currentTime = new Date();
+//   const eventTime = new Date(
+//     event.date.toISOString().split('T')[0] + 'T' + event.time
+//   );
 
-  if (currentTime > eventTime) {
-    return res.status(404).json({
-      message: 'Can not update even day before',
-    });
-  }
-  delete updatedEvent.createdAt;
-  delete updatedEvent.updatedAt;
+//   if (currentTime > eventTime) {
+//     return res.status(404).json({
+//       message: 'Can not update even day before',
+//     });
+//   }
+//   delete updatedEvent.createdAt;
+//   delete updatedEvent.updatedAt;
 
-  Object.assign(event, updatedEvent);
+//   Object.assign(event, updatedEvent);
 
-  await event.save();
+//   await event.save();
 
-  res.status(200).json({
-    status: 'success',
-    data: {
-      event,
-    },
-  });
-  // 3. for future if you update that will notify user who has subscribed
-});
+//   res.status(200).json({
+//     status: 'success',
+//     data: {
+//       event,
+//     },
+//   });
+//   // 3. for future if you update that will notify user who has subscribed
+// });
