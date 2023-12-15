@@ -8,5 +8,5 @@ const createTicket = catchAsync(async (req, res, next) => {
   // user will be get from auth middleware
   const user = await User.findById(req.body.email);
   const event = await Event.findById(eventId);
-  const ticket = Ticket.create({ event, user, type });
+  const ticket = await Ticket.create({ event, user, type });
 });

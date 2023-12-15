@@ -3,16 +3,14 @@ const Booking = require('../models/bookingModel');
 const Ticket = require('../models/ticketModel');
 const Attendee = require('../models/attendeeModel');
 const { catchAsync } = require('../utills/catchAsync');
+const AppError = require('../utills/appError');
 
 exports.bookEvent = catchAsync(async (req, res, next) => {
   /// Check the event is exist and it should be in the future
 
   const event = await Event.findById(req.params.id);
   if (!event) {
-    return res.status(400).json({
-      status: 'Fail',
-      message: 'event does not exist with this id',
-    });
+    return next(new AppError('event does not exist with this id', 404));
   }
 
   // Need to work
@@ -22,9 +20,7 @@ exports.bookEvent = catchAsync(async (req, res, next) => {
   );
 
   if (currentTime > eventTime) {
-    return res.status(404).json({
-      message: 'You can not book ongoging or past event',
-    });
+    return next(new AppError('You can not book ongoging or past event', 400));
   }
   //   /// Check event is not book by the same user
   //   const booking =
@@ -33,10 +29,7 @@ exports.bookEvent = catchAsync(async (req, res, next) => {
   const ticket = await Ticket.findOne({ event: event.id, user: req.user.id });
   if (ticket) {
     console.log('ticket', ticket);
-    return res.status(404).json({
-      status: 'Fail',
-      message: 'Event is alrady booked',
-    });
+    return next(new AppError('Event is alrady booked', 400));
   }
   await Attendee.create({ event: event.id, user: req.user.id });
   await Booking.create({ event: event.id, user: req.user.id });
