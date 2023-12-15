@@ -4,6 +4,7 @@ const User = require('../models/userModel');
 const { catchAsync } = require('../utills/catchAsync');
 const Email = require('../utills/email');
 const crypto = require('crypto');
+const AppError = require('../utills/appError');
 
 const getToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -40,19 +41,13 @@ exports.login = catchAsync(async (req, res, next) => {
 
   // check email is provided
   if (!email || !password) {
-    return res.status(400).json({
-      status: 'Fail',
-      message: 'Please prviode email and password field',
-    });
+    return next(new AppError('Please prviode email and password field', 400));
   }
 
   // get user from the email and then compare provided password
   const user = await User.findOne({ email }).select('+password');
   if (!user || !(await user.checkPasswords(password, user.password))) {
-    return res.status(401).json({
-      status: 'Fail',
-      message: 'Please provide valid email and password',
-    });
+    return next(new AppError('Please provide valid email and password', 401));
   }
 
   createAndSendToken(user, req, res, 200);
@@ -71,9 +66,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   console.log(req.headers);
 
   if (!token) {
-    return res
-      .status(400)
-      .json({ message: 'You are not logged in. Please logged in.' });
+    return next(new AppError('You are not logged in. Please logged in.', 401));
   }
 
   // verify token
@@ -83,16 +76,14 @@ exports.protect = catchAsync(async (req, res, next) => {
   const user = await User.findById(decoded.id);
 
   if (!user) {
-    return res.status(400).json({
-      message: 'user belong to this token no longer exist',
-    });
+    return next(new AppError('User belong to this token no longer exist', 401));
   }
 
   // check password is changed
   if (user.isPasswordChanged(decoded.iat)) {
-    return res
-      .status(401)
-      .json({ message: 'User has changed password, please login agian' });
+    return next(
+      new AppError('User has changed password, please login agian', 401)
+    );
   }
 
   req.user = user;
@@ -107,9 +98,9 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   console.log(user);
 
   if (!user) {
-    return res.status(404).json({
-      message: 'User does not exist with this email address',
-    });
+    return next(
+      new AppError('User does not exist with this email address', 404)
+    );
   }
 
   // 2. Generate random otp and save time in database 10 mins
@@ -132,9 +123,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     user.passwordResetExpires = undefined;
     await user.save({ validateBeforeSave: false });
     console.log(`error: ${error}`);
-    res
-      .status(500)
-      .json({ message: 'Problem occur while sending an otp', error });
+    next(new AppError('Problem occur while sending an otp', 500));
   }
 });
 
@@ -156,7 +145,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   console.log(user);
 
   if (!user) {
-    return res.status(400).json({ message: 'OTP is invalid or expired' });
+    return next(new AppError('OTP is invalid or expired', 400));
   }
 
   user.password = req.body.password;
