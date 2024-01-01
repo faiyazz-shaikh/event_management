@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/config/themes/app_theme.dart';
 import 'package:flutter_app/generated/l10n.dart';
+import 'package:flutter_app/presentation/pages/register/sign_up_page.dart';
 
 import 'presentation/pages/register/onboarding.dart';
 
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
       supportedLocales: S.delegate.supportedLocales,
       localizationsDelegates: const [S.delegate],
       //check token login and navigation
-      home: const OnboardingPage(),
+      home: const SignUpScreen(),
     );
   }
 }

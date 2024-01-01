@@ -35,9 +35,9 @@ class AppTheme {
       ),
       textTheme: TextTheme(
         bodyLarge: getNormalStyle(color: AppColors.black),
-        bodyMedium: getNormalStyle(color: AppColors.imageGrey),
+        bodyMedium: getNormalStyle(color: AppColors.black),
         bodySmall: getNormalStyle(color: AppColors.grey),
-        displayLarge: getNormalStyle(color: AppColors.grey, fontSize: 15),
+        displayLarge: getNormalStyle(color: AppColors.black, fontSize: 15),
         displayMedium: getBoldStyle(color: AppColors.black, fontSize: 15),
         displaySmall: getMediumStyle(color: AppColors.black, fontSize: 15),
         headlineSmall: getNormalStyle(color: AppColors.shimmerLightGrey),

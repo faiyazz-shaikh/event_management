@@ -32,6 +32,24 @@ class _OnboardingPageState extends State<OnboardingPage> {
           child: Column(
             children: [
               const Spacer(),
+              Text(
+                getAppLocal.intro1,
+                style: Theme.of(context)
+                    .textTheme
+                    .displayMedium
+                    ?.copyWith(fontSize: 24),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10, bottom: 18),
+                child: Text(
+                  getAppLocal.intro2,
+                  style: Theme.of(context)
+                      .textTheme
+                      .displayLarge
+                      ?.copyWith(fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+              ),
               PrimaryButton(
                 onPressed: () {},
                 title: getAppLocal.logIn,
@@ -39,7 +57,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 backGroundColor: AppColors.white,
                 textColor: AppColors.color46BCC3,
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 14),
               PrimaryButton(
                 onPressed: () {},
                 title: getAppLocal.signUp,
