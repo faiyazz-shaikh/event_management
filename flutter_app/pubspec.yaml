@@ -36,6 +36,8 @@ dependencies:
   get_it: ^7.6.4
   shared_preferences: ^2.2.2
   intl_utils: ^2.8.5
+  intl_phone_field: ^3.1.0
+  pinput: ^3.0.1
 
 dev_dependencies:
   flutter_test:
