@@ -1,4 +1,25 @@
 {
     "logIn": "Log In",
-    "signUp": "Sign Up"
+    "signUp": "Sign Up",
+    "intro1": "Let's Get Started",
+    "intro2": "Sign up or login into see whats happening near you",
+    "signupDetails": "Use your details to create a new account!",
+    "enterName": "Enter full name",
+    "fullName": "Full Name",
+    "email": "Email",
+    "enterEmail": "Enter email",
+    "password": "Password",
+    "enterPassword": "Enter password",
+    "phoneNumber": "Phone Number",
+    "agreeTerms": "I agree with Terms & Privacy",
+    "haveAccount": "Already have an account? ",
+    "event": "Ҿvent",
+    "forgotPassword": "Forgot Password?",
+    "loginIntro1": "Use your credentials and login to your account",
+    "createNewAcc": "Create New Account",
+    "ifNew": "If you are new / ",
+    "verify": "Verify",
+    "enterOtp": "Enter code send to your phone number!",
+    "notReceivedCode": "Don't receive code? / ",
+    "resend": "Resend"
 }

@@ -2,23 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/core/helper.dart';
 import 'package:flutter_app/core/resources/app_colors.dart';
 import 'package:flutter_app/presentation/widgets/app_bar.dart';
-import 'package:flutter_app/presentation/widgets/ems_text_field.dart';
 import 'package:flutter_app/presentation/widgets/primary_button.dart';
+import 'package:pinput/pinput.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class VerifyOtp extends StatelessWidget {
+  const VerifyOtp({super.key});
 
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final textFieldStyle = Theme.of(context)
         .textTheme
         .bodyMedium
         ?.copyWith(fontWeight: FontWeight.w600);
+    final defaultPinTheme = PinTheme(
+      width: 50,
+      height: 50,
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      textStyle: textFieldStyle?.copyWith(fontSize: 20),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.grey),
+        borderRadius: BorderRadius.circular(20),
+      ),
+    );
+
+    final focusedPinTheme = defaultPinTheme.copyDecorationWith(
+      border: Border.all(color: AppColors.color46BCC3),
+    );
+
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: EmsAppBar(title: getAppLocal.event),
@@ -33,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   Center(
                     child: Text(
-                      getAppLocal.logIn,
+                      getAppLocal.verify,
                       style: Theme.of(context)
                           .textTheme
                           .displayMedium
@@ -44,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: Padding(
                       padding: const EdgeInsets.only(top: 16, bottom: 20),
                       child: Text(
-                        getAppLocal.loginIntro1,
+                        getAppLocal.enterOtp,
                         style: Theme.of(context)
                             .textTheme
                             .displayLarge
@@ -52,28 +62,20 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
-                  Text(getAppLocal.email, style: textFieldStyle),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6, bottom: 32),
-                    child: EmsTextField(hintText: getAppLocal.enterEmail),
-                  ),
-                  Text(getAppLocal.password, style: textFieldStyle),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6, bottom: 20),
-                    child: EmsTextField(
-                      hintText: getAppLocal.enterPassword,
-                      suffixIcon: const Icon(Icons.remove_red_eye_outlined),
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: Pinput(
+                        defaultPinTheme: defaultPinTheme,
+                        focusedPinTheme: focusedPinTheme,
+                        onCompleted: (result) {},
+                      ),
                     ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child:
-                        Text(getAppLocal.forgotPassword, style: textFieldStyle),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 28),
                     child: PrimaryButton(
-                      title: getAppLocal.logIn,
+                      title: getAppLocal.verify,
                       onPressed: () {},
                     ),
                   ),
@@ -81,15 +83,12 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        getAppLocal.ifNew,
+                        getAppLocal.notReceivedCode,
                         style: textFieldStyle?.copyWith(
                           fontWeight: FontWeight.normal,
                         ),
                       ),
-                      Text(
-                        getAppLocal.createNewAcc,
-                        style: textFieldStyle,
-                      ),
+                      Text(getAppLocal.resend, style: textFieldStyle),
                     ],
                   ),
                   //createNewAcc
